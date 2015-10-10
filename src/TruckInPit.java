@@ -42,6 +42,6 @@ public class TruckInPit {
         return grades;
     }
     public double getLoadTime() {
-        return  loadTime;
+        return loadTime;
     }
 }
