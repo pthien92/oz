@@ -17,12 +17,13 @@ public class Driver {
     private static int crushCount;
     private static double[] goal = new double[]{0.33,0.1,0.75,4.86,0.24,0,0.07,43.01, 573.57};
     private static double scale;
+    private static JobQueue jobQueue;
 
     Driver() {
         movingAvg = new double[]{0,0,0,0,0,0,0,0,0};
         crushCount = 0;
         scale = 1;
-
+        jobQueue = new JobQueue();
         String dataFile = "data/open_pit.csv";
         BufferedReader br = null;
         String line = "";
@@ -34,6 +35,7 @@ public class Driver {
             while ((line = br.readLine()) != null) {
                 String[] truckInstance = line.split(csvSplit);
                 TruckInPit temp = new TruckInPit();
+                temp.setTruckName(truckInstance[0]);
                 temp.setLoadTime(Double.parseDouble(truckInstance[14])); //in unix times
                 temp.setDumpTime(Double.parseDouble(truckInstance[15])); //in unix times
                 temp.setWeight(Double.parseDouble(truckInstance[4]));
@@ -49,10 +51,12 @@ public class Driver {
                         Double.parseDouble(truckInstance[13])  // I
                 });
                 truckInPits.add(temp);
-                //System.out.println(line);
+
+                Job truckInPitsJob = new Job(temp.getLoadTime() + 324 /*In-pit truck arrived at depot B*/
+                                            , temp.getLoadTime() + 324, Job.EventType.TRUCK_IN_PIT_ARRIVE);
+                jobQueue.add(truckInPitsJob);
             }
         } catch (Exception e) {
-            //System.out.println("here");
            e.printStackTrace();
         }
 
@@ -60,8 +64,8 @@ public class Driver {
 
     public static void main(String args[]) {
         Driver dr = new Driver();
-        //AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
-
+        AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
+        jobQueue.sort(); //sort in ascending order of end time
         double timeElapsed = 0;
         Crusher cr = new Crusher();
 

@@ -2,6 +2,7 @@
  * Created by pthien92 on 10/10/15.
  */
 public class TruckInPit {
+    private String truckName;
     private double loadTime;
     private double dumpTime;
     private double weight;
@@ -60,5 +61,8 @@ public class TruckInPit {
 
     public double getLoadTime() {
         return loadTime;
+    }
+    public void setTruckName(String name) {
+        this.truckName = name;
     }
 }

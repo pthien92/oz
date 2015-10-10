@@ -2,6 +2,7 @@
  * Created by pthien92 on 10/10/15.
  */
 public class TruckExPit {
+    private String truckName;
     private double nextAvailableTime;
     private double weight;
     private double nextCommingAt; //approximately
@@ -62,6 +63,9 @@ public class TruckExPit {
 
     public double getLoadTime() {
         return loadTime;
+    }
+    public void setTruckName(String name) {
+        this.truckName = name;
     }
 
 }
