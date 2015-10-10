@@ -21,8 +21,8 @@ public class Driver {
             while ((line = br.readLine()) != null) {
                 String[] truckInstance = line.split(csvSplit);
                 TruckExPit temp = new TruckExPit();
-                temp.setLoadTime(Double.parseDouble(truckInstance[14]));
-                temp.setDumpTime(Double.parseDouble(truckInstance[15]));
+                temp.setLoadTime(Double.parseDouble(truckInstance[14])); //in unix times
+                temp.setDumpTime(Double.parseDouble(truckInstance[15])); //in unix times
                 temp.setWeight(Double.parseDouble(truckInstance[4]));
                 temp.setGrades(new double[]{
                         Double.parseDouble(truckInstance[5]), //grade A

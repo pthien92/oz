@@ -19,7 +19,7 @@ public class StockPile {
     }
 
 
-    public void setTotalTonnes(int tonnes) {
+    public void setTotalTonnes(double tonnes) {
         this.totalTonnes = tonnes;
     }
     public void setTravelTime(int time) {
@@ -44,7 +44,8 @@ public class StockPile {
         // estimate the error of pile
         double error = 0;
         for (int i = 0; i < targetGrades.length; i++) {
-           error += Math.pow(grades[i] - targetGrades[i], 2);
+            if (i != 5 ) //ignore F
+             error += Math.pow(grades[i] - targetGrades[i], 2);
         }
         return scale*Math.sqrt(error);
     }
