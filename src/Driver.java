@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Created by pthien92 on 10/10/15.
@@ -60,14 +62,38 @@ public class Driver {
     public static void main(String args[]) {
         Driver dr = new Driver();
         AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
-        double timeElapsed = 0;
-        double ticks = truckInPits.get(0).getLoadTime();
-        //double ticks = truckInPits.get(0).getLoadTime()
-        for (int i = 0; i < truckInPits.size(); i++)
-            System.out.println(testError(truckInPits.get(i).getGrades()));
-        for (int i = 0; i < movingAvg.length; i++)
-            System.out.println("\n" + movingAvg[i]);
 
+        double timeElapsed = 0;
+        Crusher cr = new Crusher();
+
+
+
+        int origin = (int)truckInPits.get(0).getLoadTime();
+        int tick = origin;
+        int nextTruckId = 0;
+        LinkedList<TruckInPit> currentQueue = new LinkedList<TruckInPit>();
+
+        while (tick - origin < 60 * 60 * 24 * 7) {
+            if (truckInPits.get(nextTruckId).getLoadTime() == tick) {
+                currentQueue.add(truckInPits.get(nextTruckId));
+                nextTruckId++;
+            }
+
+            TruckInPit topTruck = currentQueue.peek();
+            if (topTruck != null && tick == topTruck.getLoadTime() + 54 * 6) {
+                currentQueue.poll();
+                // Make decision for this truck, direct tip by default
+                cr.serveTruck(topTruck);
+            }
+
+            ++tick;
+
+            cr.setTimeElapsed(tick - origin);
+            System.out.println(tick - origin);
+        }
+
+        // Report after 7 days
+        cr.report();
     }
 
     public ArrayList<TruckInPit> getTruckExPits() {

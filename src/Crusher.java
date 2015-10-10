@@ -13,16 +13,27 @@ public class Crusher {
 
     private double totalTonnes;
     private ArrayList<Double> averageGrade;
-    private ArrayList<TruckExPit> exTruckServed;
-    private ArrayList<TruckInPit> inTruckServed;
+    private ArrayList<TruckInPit> exTruckServed;
+    private ArrayList<TruckExPit> inTruckServed;
     private double timeElapsed;
 
     public Crusher() {
-        // set your timeline relative origin here
+        totalTonnes = 0;
+        averageGrade = new ArrayList<Double>(8);
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        timeElapsed = 0;
     };
 
     // False if it violate
-    public boolean hourlyCheck(TruckExPit truck) {
+    public boolean hourlyCheck(TruckInPit truck) {
 
         // Check on grades
         ArrayList<Double> newAverageGrade = new ArrayList<Double>();
@@ -55,7 +66,7 @@ public class Crusher {
     };
 
     // False if it violate
-    public boolean dailyCheck(TruckExPit truck) {
+    public boolean dailyCheck(TruckInPit truck) {
         // Check on grades
         ArrayList<Double> newAverageGrade = new ArrayList<Double>();
         double[] truckGrade = truck.getGrades();
@@ -85,7 +96,7 @@ public class Crusher {
         return true;
     };
 
-    public void serveTruck(TruckExPit truck) {
+    public void serveTruck(TruckInPit truck) {
         double[] truckGrade = truck.getGrades();
         double weight = truck.getWeight();
 
@@ -94,7 +105,6 @@ public class Crusher {
         }
 
         totalTonnes += weight;
-        exTruckServed.add(truck);
     }
 
     public double getTimeElapsed() {
@@ -103,5 +113,13 @@ public class Crusher {
 
     public void setTimeElapsed(double timeElapsed) {
         this.timeElapsed = timeElapsed;
+    }
+
+    public void report() {
+        for(int i = 0; i < 8; ++i) {
+            System.out.println(i + ":" + averageGrade.get(i));
+        }
+
+        System.out.println(totalTonnes);
     }
 };

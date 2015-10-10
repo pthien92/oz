@@ -14,7 +14,7 @@ public class TruckInPit {
         dumpTime = 0;
         weight = 0;
         nextCommingAt = 0;
-        grades = new double[]{0,0,0,0,0,0,0,0,0};
+        grades = new double[] {0,0,0,0,0,0,0,0,0};
         assignedDump = 0;
     }
 
@@ -38,9 +38,26 @@ public class TruckInPit {
         assignedDump = dumpLocation;
     }
 
+    public double getWeight() {
+        return weight;
+    }
+
+    public int getAssignedDump() {
+        return assignedDump;
+    }
+
+    public double getNextCommingAt() {
+        return nextCommingAt;
+    }
+
     public double[] getGrades() {
         return grades;
     }
+
+    public double getDumpTime() {
+        return dumpTime;
+    }
+
     public double getLoadTime() {
         return loadTime;
     }
