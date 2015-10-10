@@ -18,17 +18,17 @@ public class Crusher {
     private double timeElapsed;
 
     public Crusher() {
-        totalTonnes = 0;
-        averageGrade = new ArrayList<Double>(8);
+        totalTonnes = 5407;
+        averageGrade = new ArrayList<Double>(9);
+        averageGrade.add(new Double(0.33));
+        averageGrade.add(new Double(0.10));
+        averageGrade.add(new Double(0.75));
+        averageGrade.add(new Double(4.86));
+        averageGrade.add(new Double(0.24));
         averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0.07));
+        averageGrade.add(new Double(43.01));
+        averageGrade.add(new Double(573.57));
         timeElapsed = 0;
     };
 
@@ -40,27 +40,27 @@ public class Crusher {
         double[] truckGrade = truck.getGrades();
         double weight = truck.getWeight();
 
-        for(int i = 0; i < 8; ++i) {
-            newAverageGrade.set(i, (averageGrade.get(i) * totalTonnes + truckGrade[i] * weight) / (totalTonnes + weight));
+        for(int i = 0; i < 9; ++i) {
+            newAverageGrade.add(i, (averageGrade.get(i) * totalTonnes + truckGrade[i] * weight) / (totalTonnes + weight));
         }
 
-        for(int i = 0; i < 8; ++i) {
+        for(int i = 0; i < 9; ++i) {
             double grade = newAverageGrade.get(i);
-            if (HourLowerLimit[i] != 1000 && grade < Target[i] + HourLowerLimit[i]) {
+            if (HourLowerLimit[i] != 1000 && grade < Target[i] * ( 1 + HourLowerLimit[i])) {
                 return false;
             }
 
-            if (HourUpperLimit[i] != 1000 && grade > Target[i] + HourUpperLimit[i]) {
+            if (HourUpperLimit[i] != 1000 && grade > Target[i] * ( 1 + HourUpperLimit[i])) {
                 return false;
             }
         }
 
         // Checks on weight
-        double newTotalTonnes = totalTonnes;
-        double millFeedRate = newTotalTonnes / timeElapsed;
-        if (millFeedRate > 1700 || millFeedRate < 1416.67) {
-            return false;
-        }
+//        double newTotalTonnes = totalTonnes;
+//        double millFeedRate = newTotalTonnes / timeElapsed;
+//        if (millFeedRate > 1700 || millFeedRate < 1416.67) {
+//            return false;
+//        }
 
         return true;
     };
@@ -72,26 +72,26 @@ public class Crusher {
         double[] truckGrade = truck.getGrades();
         double weight = truck.getWeight();
 
-        for(int i = 0; i < 8; ++i) {
-            newAverageGrade.set(i, (averageGrade.get(i) * totalTonnes + truckGrade[i] * weight) / (totalTonnes + weight));
+        for(int i = 0; i < 9; ++i) {
+            newAverageGrade.add(i, (averageGrade.get(i) * totalTonnes + truckGrade[i] * weight) / (totalTonnes + weight));
         }
 
-        for(int i = 0; i < 8; ++i) {
+        for(int i = 0; i < 9; ++i) {
             double grade = newAverageGrade.get(i);
-            if (DailyLowerLimit[i] != 1000 && grade < Target[i] + DailyLowerLimit[i]) {
+            if (DailyLowerLimit[i] != 1000 && grade < Target[i] + Target[i] * DailyLowerLimit[i]) {
                 return false;
             }
 
-            if (DailyUpperLimit[i] != 1000 && grade > Target[i] + DailyUpperLimit[i]) {
+            if (DailyUpperLimit[i] != 1000 && grade > Target[i] + Target[i] * DailyUpperLimit[i]) {
                 return false;
             }
         }
 
-        double newTotalTonnes = totalTonnes + truck.getWeight();
-        double millFeedRate = newTotalTonnes / timeElapsed;
-        if (millFeedRate > 40800 || millFeedRate < 34000) {
-            return false;
-        }
+//        double newTotalTonnes = totalTonnes + truck.getWeight();
+//        double millFeedRate = newTotalTonnes / (timeElapsed / (24 * 60 * 60));
+//        if (millFeedRate > 40800 || millFeedRate < 34000) {
+//            return false;
+//        }
 
         return true;
     };
@@ -100,7 +100,7 @@ public class Crusher {
         double[] truckGrade = truck.getGrades();
         double weight = truck.getWeight();
 
-        for(int i = 0; i < 8; ++i) {
+        for(int i = 0; i < 9; ++i) {
             averageGrade.set(i, (averageGrade.get(i) * totalTonnes + truckGrade[i] * weight) / (totalTonnes + weight));
         }
 
@@ -116,10 +116,10 @@ public class Crusher {
     }
 
     public void report() {
-        for(int i = 0; i < 8; ++i) {
+        for(int i = 0; i < 9; ++i) {
             System.out.println(i + ":" + averageGrade.get(i));
         }
 
-        System.out.println(totalTonnes);
+        System.out.println(totalTonnes / (timeElapsed / (24 * 60 * 60)));
     }
 };

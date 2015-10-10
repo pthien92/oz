@@ -51,6 +51,7 @@ public class Driver {
                         Double.parseDouble(truckInstance[13])  // I
                 });
                 truckInPits.add(temp);
+
                 Job truckInPitsJob = new Job(temp.getLoadTime() + 324 /*In-pit truck arrived at depot B*/
                                             , temp.getLoadTime() + 324, Job.EventType.TRUCK_IN_PIT_ARRIVE);
                 jobQueue.add(truckInPitsJob);
@@ -61,7 +62,6 @@ public class Driver {
 
     }
 
-
     public static void main(String args[]) {
         Driver dr = new Driver();
         AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
@@ -69,34 +69,41 @@ public class Driver {
         double timeElapsed = 0;
         Crusher cr = new Crusher();
 
-
-
         int origin = (int)truckInPits.get(0).getLoadTime();
         int tick = origin;
         int nextTruckId = 0;
         LinkedList<TruckInPit> currentQueue = new LinkedList<TruckInPit>();
 
-        while (tick - origin < 60 * 60 * 24 * 7) {
-            if (truckInPits.get(nextTruckId).getLoadTime() == tick) {
+        double something = truckInPits.get(truckInPits.size() - 1).getLoadTime() - truckInPits.get(0).getLoadTime();
+        System.out.println(something);
+        int directTip = 0;
+
+        while (nextTruckId < truckInPits.size()) {
+            if ((int)truckInPits.get(nextTruckId).getLoadTime() == tick) {
                 currentQueue.add(truckInPits.get(nextTruckId));
                 nextTruckId++;
             }
 
             TruckInPit topTruck = currentQueue.peek();
-            if (topTruck != null && tick == topTruck.getLoadTime() + 54 * 6) {
+            if (topTruck != null && tick == (int) topTruck.getLoadTime() + 54 * 6) {
                 currentQueue.poll();
                 // Make decision for this truck, direct tip by default
-                cr.serveTruck(topTruck);
+                if (cr.dailyCheck(topTruck)) {
+                    directTip++;
+                    cr.serveTruck(topTruck);
+                }
             }
 
             ++tick;
-
             cr.setTimeElapsed(tick - origin);
-            System.out.println(tick - origin);
         }
+
+        System.out.println(nextTruckId);
 
         // Report after 7 days
         cr.report();
+
+        System.out.println(directTip);
     }
 
     public ArrayList<TruckInPit> getTruckExPits() {
@@ -109,6 +116,7 @@ public class Driver {
             movingAvg = grades.clone();
             return computeError(grades);
         }
+
         for (int i = 0; i < grades.length; i++) {
             movingAvg[i] = movingAvg[i] + (grades[i] - movingAvg[i])/(crushCount+1);
         }
