@@ -22,6 +22,7 @@ public class ROMStockPile {
         String csvSplit = ",";
         try {
             br = new BufferedReader(new FileReader(dataFile));
+            line = br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] stockPileInstance = line.split(csvSplit);
                 int pileNum = Integer.parseInt(stockPileInstance[0])-1;

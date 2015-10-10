@@ -8,14 +8,13 @@ import java.util.LinkedList;
  */
 public class Driver {
     private static ArrayList<TruckInPit> truckInPits;
-    private static double[] movingAvg;
     private static int crushCount;
     private static double[] goal = new double[]{0.33,0.1,0.75,4.86,0.24,0,0.07,43.01, 573.57};
     private static double scale;
     private static JobQueue jobQueue;
 
     Driver() {
-        movingAvg = new double[]{0,0,0,0,0,0,0,0,0};
+
         crushCount = 0;
         scale = 1;
         jobQueue = new JobQueue();
@@ -67,10 +66,9 @@ public class Driver {
 
         int origin = (int)jobQueue.get(0).getEndTime();
         int tick = origin;
-
-        while (jobQueue.size() > 4) {
+        int count = 0;
+        while (count >2) {
             Job crrJob = jobQueue.get(0);
-
             if ((int) (crrJob.getEndTime()) == tick) {
                 double crushErr = testError(cr, crrJob.getTruck());
                 ArrayList<Double> stockpileErrs = new ArrayList<Double>();
