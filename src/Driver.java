@@ -1,3 +1,5 @@
+import com.intellij.execution.impl.statistics.TemporaryRunConfigurationTypeUsagesCollector;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -7,7 +9,7 @@ import java.util.ArrayList;
  */
 public class Driver {
     private static ArrayList<TruckExPit> truckExPits;
-    Driver() {
+    public Driver() {
         String dataFile = "data/open_pit.csv";
         BufferedReader br = null;
         String line = "";
@@ -35,17 +37,42 @@ public class Driver {
                 });
                 truckExPits.add(temp);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+    }
+    private static boolean validate(TruckExPit truck) {
+       return false;
+    }
+
+    private static void process(ArrayList<TruckExPit> truckQueue) {
+        for(int i = 0; i < truckQueue.size(); ++i) {
+            if(validate(truckQueue.get(i)))) {
+            }
         }
     }
 
     public static void main(String args[]) {
         Driver dr = new Driver();
         System.out.println(truckExPits.size());
-    }
-    public ArrayList<TruckExPit> getTruckExPits() {
-        return truckExPits;
+
+        // Simulate
+        double currentTime = 0;
+        ArrayList<TruckExPit> currentQueue = new ArrayList<TruckExPit>();
+
+        if (truckExPits.size() > 0) {
+            currentTime = truckExPits.get(0).getLoadTime() + 5.4;
+        };
+
+        for (int i = 0; i < truckExPits.size(); ++i) {
+            if (truckExPits.get(i).getLoadTime() + 5.4 <= currentTime + 60) {
+                currentQueue.add(truckExPits.get(i));
+                process(currentQueue);
+            } else {
+                currentTime = truckExPits.get(i).getLoadTime() + 5.4;
+                currentQueue.clear();
+            }
+        }
     }
 }
