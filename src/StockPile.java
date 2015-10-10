@@ -7,7 +7,7 @@ public class StockPile {
     private double[] grades;
     private int travelTime;
     private double error;
-
+    private double scale;
     StockPile() {
         totalTonnes = 0;
         grades = new double[9];
@@ -15,6 +15,7 @@ public class StockPile {
             grades[i] = 0;
         travelTime = 0;
         error = 0;
+        scale = 1;
     }
 
 
@@ -45,6 +46,9 @@ public class StockPile {
         for (int i = 0; i < targetGrades.length; i++) {
            error += Math.pow(grades[i] - targetGrades[i], 2);
         }
-        return Math.sqrt(error);
+        return scale*Math.sqrt(error);
+    }
+    public void setScale(double sc) {
+        scale = sc;
     }
 }

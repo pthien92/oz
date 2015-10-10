@@ -4,5 +4,4 @@
 public class TruckInPit {
     private double nextAvailableTime;
     private double weight;
-    public void 
 }
