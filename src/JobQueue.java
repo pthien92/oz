@@ -32,7 +32,7 @@ public class JobQueue extends ArrayList<Job> {
         Collections.sort(this, new Comparator<Job>() {
             @Override
             public int compare(Job job1, Job job2) {
-                return (int)(job2.getStartTime()- job1.getStartTime());
+                return (int)(job2.getEndTime()- job1.getEndTime());
             }
         });
     }

@@ -93,7 +93,7 @@ public class Crusher {
     };
 
     // False if it violate
-    public boolean dailyCheck(TruckInPit truck) {
+    public boolean dailyCheck(Truck truck) {
         // Check on grades
         ArrayList<Double> newAverageGrade = new ArrayList<Double>();
         double[] truckGrade = truck.getGrades();
@@ -123,7 +123,7 @@ public class Crusher {
         return true;
     };
 
-    public void serveTruck(TruckInPit truck) {
+    public void serveTruck(Truck truck) {
         double[] truckGrade = truck.getGrades();
         double weight = truck.getWeight();
 

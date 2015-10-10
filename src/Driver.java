@@ -64,6 +64,7 @@ public class Driver {
         ArrayList<StockPile> piles = stockPiles.getStockPiles();
 
         jobQueue.sort(); //sort in ascending order of end time
+        jobQueue.setFleetCount(0);
         double timeElapsed = 0;
         Crusher cr = new Crusher();
 
@@ -71,98 +72,102 @@ public class Driver {
         int tick = origin;
 
         int freeTimeCount = 0;
+        int myMin = tick;
 
         while (!jobQueue.isEmpty()) {
             boolean newFleetAdded = false;
+
             Job crrJob = jobQueue.get(jobQueue.size() - 1);
-            if ((int) (crrJob.getEndTime()) == tick) {
-                double crushErr = testError(cr, crrJob.getTruck());
 
-                ArrayList<Double> stockpileErrs = new ArrayList<Double>();
-                for (int i = 0; i < piles.size(); ++i) {
-                    stockpileErrs.add(stockpilesError(piles.get(i), crrJob.getTruck()));
-                }
+            myMin = (int)crrJob.getEndTime();
 
-                double minErr = crushErr;
-                int minPile = -1;
-                for (int i = 0; i < stockpileErrs.size(); ++i) {
-                    if (minErr > stockpileErrs.get(i) && piles.get(i).getTotalTones() >= 138) {
-                        minErr = stockpileErrs.get(i);
-                        minPile = i;
+            if (((int) crrJob.getEndTime()) == tick) {
+
+                if (crrJob.getTruck() instanceof  TruckInPit) {
+                    double crushErr = testError(cr, crrJob.getTruck());
+
+                    ArrayList<Double> stockpileErrs = new ArrayList<Double>();
+                    for (int i = 0; i < piles.size(); ++i) {
+                        stockpileErrs.add(stockpilesError(piles.get(i), crrJob.getTruck()));
                     }
-                }
+                    double minErr = crushErr;
 
-                if (minPile != -1) {
-                    jobQueue.remove(crrJob);
-                    if (crrJob.getTruck() instanceof TruckInPit) {
+                    int minPile = -1;
+                    for (int i = 0; i < stockpileErrs.size(); ++i) {
+                        if (minErr > stockpileErrs.get(i)) {
+                            minErr = stockpileErrs.get(i);
+                            minPile = i;
+                        }
+                    }
+
+                    if (minPile != -1) {
+//                        if (crrJob.getTruck() instanceof TruckInPit) {
                         piles.get(minPile).serveInTruck((TruckInPit) crrJob.getTruck(), crrJob.getTruck().getEndTime() - origin);
+//                        } else {
+//                            piles.get(minPile).serveExTruck((TruckExPit) crrJob.getTruck(), crrJob.getTruck().getEndTime() - origin);
+//                        }
                     } else {
-                        piles.get(minPile).serveExTruck((TruckExPit) crrJob.getTruck(), crrJob.getTruck().getEndTime() - origin);
-                    }
-                } else {
-                    if(crrJob.getTruck() instanceof  TruckInPit) {
-                        directTip ++;
                         cr.serveTruck((TruckInPit) crrJob.getTruck());
                         cr.setTimeElapsed(tick - origin);
-                    } else {
-                        jobQueue.setFleetCount(jobQueue.getFleetCount() - 1);
+                        directTip++;
+
+//                        if (crrJob.getTruck() instanceof TruckInPit) {
+//                            cr.serveTruck((TruckInPit) crrJob.getTruck());
+//                            cr.setTimeElapsed(tick - origin);
+//                        } else {
+//                            directTip++;
+//                            jobQueue.setFleetCount(jobQueue.getFleetCount() - 1);
+//                        }
                     }
-                    jobQueue.remove(crrJob);
+                    jobQueue.remove(jobQueue.size() - 1);
+                } else {
+                    cr.serveTruck((TruckExPit) crrJob.getTruck());
+                    cr.setTimeElapsed(tick - origin);
+                    jobQueue.setFleetCount(jobQueue.getFleetCount() - 1);
+                    jobQueue.remove(jobQueue.size() - 1);
+                }
+            } else if (jobQueue.getFleetCount() < 3) {
+
+                TruckExPit fleet = new TruckExPit();
+                fleet.setStartTime(tick);
+
+                // Select pile here
+                int pileId = -1;
+                double minError = 100000;
+                ArrayList<Double> errors = new ArrayList<Double>();
+                for (int i = 0; i < piles.size(); ++i) {
+                    errors.add(pileToCrusherError(cr, piles.get(i).getGrades()));
                 }
 
-                System.out.println("tick" + tick + jobqueue.size);
-            } else if (jobQueue.getFleetCount() < 3) {
-                freeTimeCount++;
-//                System.out.println("free time count" + freeTimeCount);
-//
-//                TruckExPit fleet = new TruckExPit();
-//                fleet.setStartTime(tick);
-//
-//                // Select pile here
-//                int pileId = 0;
-//                double minError = 100000;
-//                ArrayList<Double> errors = new ArrayList<Double>();
-//                for (int i = 0; i < piles.size(); ++i) {
-//                    errors.add(pileToCrusherError(cr, piles.get(i).getGrades()));
-//                }
-//
-//                for (int i = 0; i < piles.size(); ++i) {
-//                    if (minError > errors.get(i) && piles.get(i).getTotalTones() >= 138) {
-//                       minError = errors.get(i);
-//                        pileId = i;
-//                    }
-//                }
-//
-//                piles.get(pileId).serveExTruck(fleet, tick);
-//                fleet.setEndTime(tick + piles.get(pileId).getTravelTime());
-//
-//                Job job = new Job(tick, fleet.getEndTime(), null, fleet);
-//
-//                jobQueue.add(job);
-//                jobQueue.sort();
-//                if (jobQueue.get(jobQueue.size() - 1).getEndTime() == job.getEndTime()) {
-//                    System.out.println("adfajsk");
-//                }
-//
-//                jobQueue.setFleetCount(jobQueue.getFleetCount() + 1);
-//
-//                System.out.println(2 * piles.get(pileId).getTravelTime() + "travel time");
-//                newFleetAdded = true;
+                for (int i = 0; i < piles.size(); ++i) {
+                    if (minError > errors.get(i) && piles.get(i).getTotalTones() >= 138) {
+                       minError = errors.get(i);
+                        pileId = i;
+                    }
+                }
+                if (pileId != -1) {
+                    fleet.setEndTime(tick + piles.get(pileId).getTravelTime());
+                    fleet.setWeight(138);
+                    fleet.setGrades(piles.get(pileId).getGrades());
+
+                    piles.get(pileId).serveExTruck(fleet, tick);
+                    Job job = new Job(tick, fleet.getEndTime(), null, fleet);
+
+                    jobQueue.add(job);
+                    jobQueue.sort();
+
+                    jobQueue.setFleetCount(jobQueue.getFleetCount() + 1);
+                }
             }
 
-//            if (!newFleetAdded) {
-//                if (!jobQueue.isEmpty() && jobQueue.get(jobQueue.size() - 1).getEndTime() != tick) {
-//                    ++tick;
-//                }
-//            } else {
-                if (!jobQueue.isEmpty() && jobQueue.get(jobQueue.size() - 1).getEndTime() != tick) {
-                    ++tick;
-                }
-//            }
-        }
+            if (!jobQueue.isEmpty() && jobQueue.get(jobQueue.size() - 1).getEndTime() != tick) {
+                ++tick;
+            }
 
-        if ((tick - origin) % (60*60*24) == 0) {
-            stockPiles.resetUndergroundPiles((tick - origin) / (60 * 60 * 24));
+            if ((tick - origin) % (60*60*24) == 0) {
+                int day = ((tick - origin) / (60 * 60 * 24) % 7 + 1);
+                stockPiles.resetUndergroundPiles(day);
+            }
         }
 
         // Report after 7 days
@@ -208,12 +213,13 @@ public class Driver {
 
     public static double computeError(double[] new_grades) {
         double error = 0;
-        double[] coefficients = calculateNormaliseCoefficients(goal);
-        double[] normalisedNewGrades = normaliseGrades(new_grades, coefficients);
-        double[] normalisedGoal = normaliseGrades(goal, coefficients);
+//        double[] coefficients = calculateNormaliseCoefficients(goal);
+//        double[] normalisedNewGrades = normaliseGrades(new_grades, coefficients);
+//        double[] normalisedGoal = normaliseGrades(goal, coefficients);
         for (int i = 0; i < new_grades.length; i++) {
             if (i != 5 ) //ignore F
-                error += Math.pow(normalisedNewGrades[i] - normalisedGoal[i], 2);
+//                error += Math.pow(normalisedNewGrades[i] - normalisedGoal[i], 2);
+            error += Math.pow(goal[i] - new_grades[i], 2);
         }
         return scale*Math.sqrt(error);
     }
