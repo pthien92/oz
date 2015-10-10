@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.util.ArrayList;
 
 /**
@@ -8,6 +9,31 @@ public class ROMStockPile {
 
     ROMStockPile() {
         stockPiles = new ArrayList<StockPile>(21);
+        String dataFile = "data/rom_stockpile_data.csv";
+        BufferedReader br = null;
+        String line = "";
+        String csvSplit = ",";
+        try {
+            while ((line = br.readLine()) != null) {
+                String[] stockPileInstance = line.split(csvSplit);
+                int pileNum = Integer.parseInt(stockPileInstance[0]);
+                stockPiles.get(pileNum).setStockPileName(stockPileInstance[0]);
+                stockPiles.get(pileNum).setTotalTonnes(Double.parseDouble(stockPileInstance[1]));
+                stockPiles.get(pileNum).setGrades(new double[]{
+                        Double.parseDouble(stockPileInstance[2]), //A
+                        Double.parseDouble(stockPileInstance[3]), //B
+                        Double.parseDouble(stockPileInstance[4]), //C
+                        Double.parseDouble(stockPileInstance[5]), //D
+                        Double.parseDouble(stockPileInstance[6]), //E
+                        Double.parseDouble(stockPileInstance[7]), //F
+                        Double.parseDouble(stockPileInstance[8]), //G
+                        Double.parseDouble(stockPileInstance[9]), //H
+                        Double.parseDouble(stockPileInstance[10]) //I
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setStockPileAt(StockPile stPile, int index) {

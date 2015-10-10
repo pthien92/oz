@@ -19,7 +19,7 @@ public class StockPile {
     }
 
 
-    public void setTotalTonnes(int tonnes) {
+    public void setTotalTonnes(double tonnes) {
         this.totalTonnes = tonnes;
     }
     public void setTravelTime(int time) {
