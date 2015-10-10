@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 
 /**
@@ -10,14 +11,18 @@ public class UndergroundStockPile {
 
     UndergroundStockPile(String path) {
         stockPiles = new ArrayList<StockPile>(21);
+        for (int i = 0; i < 21; i++) {
+            stockPiles.add(new StockPile());
+        }
         String dataFile = path;
         BufferedReader br = null;
         String line = "";
         String csvSplit = ",";
         try {
+            br = new BufferedReader(new FileReader(dataFile));
             while ((line = br.readLine()) != null) {
                 String[] stockPileInstance = line.split(csvSplit);
-                int pileNum = Integer.parseInt(stockPileInstance[0]);
+                int pileNum = Integer.parseInt(stockPileInstance[0])-1;
                 stockPiles.get(pileNum).setStockPileName(stockPileInstance[0]);
                 stockPiles.get(pileNum).setTotalTonnes(Double.parseDouble(stockPileInstance[1]));
                 stockPiles.get(pileNum).setGrades(new double[]{
@@ -43,7 +48,7 @@ public class UndergroundStockPile {
     }
 
     public StockPile getStockPile(int stockPileNumber) {
-        return stockPiles.get(stockPileNumber - 1);
+        return stockPiles.get(stockPileNumber);
     }
     public StockPile getMinimumErrorStockPile() {
         //return the minimum error stockpile
