@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -46,5 +47,8 @@ public class ROMStockPile {
     public StockPile getMinimumErrorStockPile() {
         //return the minimum error stockpile
         return new StockPile();
+    }
+    public ArrayList<StockPile> getAllStockPiles() {
+        return stockPiles;
     }
 }
