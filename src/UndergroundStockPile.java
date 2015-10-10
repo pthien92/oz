@@ -6,6 +6,7 @@ import java.util.ArrayList;
  */
 public class UndergroundStockPile {
     private ArrayList<StockPile> stockPiles;
+    private double[] goal = new double[]{0.33,0.1,0.75,4.86,0.24,0,0.07,43.01, 573.57};
 
     UndergroundStockPile(String path) {
         stockPiles = new ArrayList<StockPile>(21);
@@ -30,6 +31,7 @@ public class UndergroundStockPile {
                         Double.parseDouble(stockPileInstance[9]), //H
                         Double.parseDouble(stockPileInstance[10]) //I
                 });
+                stockPiles.get(pileNum).computeError(goal);
             }
         } catch (Exception e) {
             e.printStackTrace();

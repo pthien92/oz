@@ -61,5 +61,4 @@ public class TruckInPit {
     public double getLoadTime() {
         return loadTime;
     }
-
 }
