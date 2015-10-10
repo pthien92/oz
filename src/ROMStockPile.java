@@ -7,6 +7,7 @@ import java.util.ArrayList;
  */
 public class ROMStockPile {
     private ArrayList<StockPile> stockPiles;
+    private double[] goal = new double[]{0.33,0.1,0.75,4.86,0.24,0,0.07,43.01, 573.57};
 
     ROMStockPile() {
         stockPiles = new ArrayList<StockPile>(21);
