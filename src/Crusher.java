@@ -35,18 +35,28 @@ public class Crusher {
     private double timeElapsed;
 
     public Crusher() {
-        totalTonnes = 5407;
+//        totalTonnes = 5407;
+        totalTonnes = 0;
         averageGrade = new ArrayList<Double>(9);
-        averageGrade.add(new Double(0.33));
-        averageGrade.add(new Double(0.10));
-        averageGrade.add(new Double(0.75));
-        averageGrade.add(new Double(4.86));
-        averageGrade.add(new Double(0.24));
+//        averageGrade.add(new Double(0.33));
+//        averageGrade.add(new Double(0.10));
+//        averageGrade.add(new Double(0.75));
+//        averageGrade.add(new Double(4.86));
+//        averageGrade.add(new Double(0.24));
+//        averageGrade.add(new Double(0));
+//        averageGrade.add(new Double(0.07));
+//        averageGrade.add(new Double(43.01));
+//        averageGrade.add(new Double(573.57));
         averageGrade.add(new Double(0));
-        averageGrade.add(new Double(0.07));
-        averageGrade.add(new Double(43.01));
-        averageGrade.add(new Double(573.57));
-        timeElapsed = 0;
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        averageGrade.add(new Double(0));
+        timeElapsed = 1;
     };
 
     // False if it violate

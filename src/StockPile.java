@@ -7,7 +7,7 @@ public class StockPile {
     private double[] grades;
     private int travelTime;
     private double error;
-    private double time;
+    private int time;
     private double scale;
     StockPile() {
         totalTonnes = 0;
