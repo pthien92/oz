@@ -59,7 +59,9 @@ public class Driver {
 
     public static void main(String args[]) {
         Driver dr = new Driver();
+        AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
         double timeElapsed = 0;
+        double ticks = truckInPits.get(0).getLoadTime();
         //double ticks = truckInPits.get(0).getLoadTime()
         for (int i = 0; i < truckInPits.size(); i++)
             System.out.println(testError(truckInPits.get(i).getGrades()));
