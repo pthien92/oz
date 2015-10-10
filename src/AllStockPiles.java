@@ -5,7 +5,7 @@ import java.util.ArrayList;
  */
 public class AllStockPiles {
     private ArrayList<StockPile> stockPiles;
-    AllStockPiles() {
+    AllStockPiles(String path_to_under_ground) {
         //copy stockpiles from ROM stockPile
         //copy stockpiles from UndergroundStockPile
         // 21 stockpiles in total
@@ -15,8 +15,8 @@ public class AllStockPiles {
         int[] romIndex = new int[]{2,3,4,5,6,7,8,9,10,11,12,19,20,21};
         stockPiles = new ArrayList<StockPile>(21);
         ROMStockPile romStockPile = new ROMStockPile();
-        stockPiles = (ArrayList<StockPile>) romStockPile.getAllStockPiles().clone();
-        UndergroundStockPile undergroundStockPile = new UndergroundStockPile("data/underground_stockpile_1May");
+        stockPiles = romStockPile.getAllStockPiles();
+        UndergroundStockPile undergroundStockPile = new UndergroundStockPile(path_to_under_ground);
         for (int i = 0; i < underGroundIndex.length; i++) {
             stockPiles.remove(underGroundIndex[i]);
             stockPiles.add(underGroundIndex[i], undergroundStockPile.getStockPile(i));

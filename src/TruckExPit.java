@@ -13,7 +13,7 @@ public class TruckExPit {
     TruckExPit() {
         loadTime = 0;
         dumpTime = 0;
-        weight = 0;
+        weight = 138;
         nextCommingAt = 0;
         grades = new double[] {0,0,0,0,0,0,0,0,0};
         assignedDump = 0;

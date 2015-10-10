@@ -60,15 +60,12 @@ public class Driver {
 
 
     public static void main(String args[]) {
-        double timeElapsed = 0;
         Driver dr = new Driver();
+        AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
+
+        double timeElapsed = 0;
         Crusher cr = new Crusher();
 
-        //double ticks = truckInPits.get(0).getLoadTime();
-        for (int i = 0; i < truckInPits.size(); i++)
-            System.out.println(testError(truckInPits.get(i).getGrades()));
-        for (int i = 0; i < movingAvg.length; i++)
-            System.out.println("\n" + movingAvg[i]);
 
 
         int origin = (int)truckInPits.get(0).getLoadTime();
