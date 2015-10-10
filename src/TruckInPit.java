@@ -1,7 +1,7 @@
 /**
  * Created by pthien92 on 10/10/15.
  */
-public class TruckInPit {
+public class TruckInPit extends Truck{
     private String truckName;
     private double loadTime;
     private double dumpTime;

@@ -11,7 +11,24 @@ public class Crusher {
 
     private static final double[] Target = {.33, .1, .75, 4.86, 0.24, 1000, 0.07, 43.01, 573.57};
 
+    public double getTotalTonnes() {
+        return totalTonnes;
+    }
+
+    public void setTotalTonnes(double totalTonnes) {
+        this.totalTonnes = totalTonnes;
+    }
+
     private double totalTonnes;
+
+    public ArrayList<Double> getAverageGrade() {
+        return averageGrade;
+    }
+
+    public void setAverageGrade(ArrayList<Double> averageGrade) {
+        this.averageGrade = averageGrade;
+    }
+
     private ArrayList<Double> averageGrade;
     private ArrayList<TruckInPit> exTruckServed;
     private ArrayList<TruckExPit> inTruckServed;

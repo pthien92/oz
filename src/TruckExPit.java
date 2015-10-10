@@ -1,7 +1,7 @@
 /**
  * Created by pthien92 on 10/10/15.
  */
-public class TruckExPit {
+public class TruckExPit extends Truck {
     private String truckName;
     private double nextAvailableTime;
     private double weight;
@@ -10,11 +10,14 @@ public class TruckExPit {
     private int assignedDump;
     private double loadTime;
     private double dumpTime;
+    private int endTime;
+    private int startTime;
 
     TruckExPit() {
         loadTime = 0;
         dumpTime = 0;
         weight = 138;
+        endTime = 0;
         nextCommingAt = 0;
         grades = new double[] {0,0,0,0,0,0,0,0,0};
         assignedDump = 0;
@@ -64,8 +67,24 @@ public class TruckExPit {
     public double getLoadTime() {
         return loadTime;
     }
+
     public void setTruckName(String name) {
         this.truckName = name;
     }
 
+    public void setEndTime(int endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getEndTime() {
+        return endTime;
+    }
+
+    public void setStartTime(int startTime) {
+        this.startTime = startTime;
+    }
+
+    public int getStartTime() {
+        return this.startTime;
+    }
 }
