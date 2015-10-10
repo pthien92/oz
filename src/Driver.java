@@ -21,7 +21,7 @@ public class Driver {
         crushCount = 0;
         scale = 1;
 
-        String dataFile = "/data/open_pit.csv";
+        String dataFile = "data/open_pit.csv";
         BufferedReader br = null;
         String line = "";
         String csvSplit = ",";
@@ -58,11 +58,11 @@ public class Driver {
 
 
     public static void main(String args[]) {
+        Driver dr = new Driver();
         double timeElapsed = 0;
-        //double ticks = truckInPits.get(0).getLoadTime();
+        //double ticks = truckInPits.get(0).getLoadTime()
         for (int i = 0; i < truckInPits.size(); i++)
             System.out.println(testError(truckInPits.get(i).getGrades()));
-        Driver dr = new Driver();
         for (int i = 0; i < movingAvg.length; i++)
             System.out.println("\n" + movingAvg[i]);
 
