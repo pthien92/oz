@@ -16,6 +16,7 @@ public class AllStockPiles {
     public AllStockPiles(String path_to_under_ground) {
         //copy stockpiles from ROM stockPile
         //copy stockpiles from UndergroundStockPile
+        //Overwrite previous stockpiles with any of UndergroundStockPile
         // 21 stockpiles in total
         // Underground: 7 stockpiles (1,13,14,15,16,17,18)
         // ROM stockpiles : 14 (2,3,4,5,6,7,8,9,10,11,12,19,20,21)
