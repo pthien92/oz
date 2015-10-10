@@ -4,7 +4,7 @@ import java.awt.*;
  * Created by pthien92 on 10/10/15.
  */
 public class Job {
-    private enum EventType {TRUCK_IN_PIT_ARRIVE,
+    public enum EventType {TRUCK_IN_PIT_ARRIVE,
                         TRUCK_EX_PIT_ARRIVE,
                         CRUSHER_IS_CRUSHING,
                         }
@@ -33,5 +33,8 @@ public class Job {
 
     public double getEndTime() {
         return endTime;
+    }
+    public double getStartTime() {
+        return startTime;
     }
 }

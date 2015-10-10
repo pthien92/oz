@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -11,14 +12,20 @@ public class ROMStockPile {
 
     ROMStockPile() {
         stockPiles = new ArrayList<StockPile>(21);
+        for (int i = 0; i < 21; i++)
+            stockPiles.add(new StockPile());
+
+
         String dataFile = "data/rom_stockpile_data.csv";
         BufferedReader br = null;
         String line = "";
         String csvSplit = ",";
         try {
+            br = new BufferedReader(new FileReader(dataFile));
             while ((line = br.readLine()) != null) {
                 String[] stockPileInstance = line.split(csvSplit);
-                int pileNum = Integer.parseInt(stockPileInstance[0]);
+                int pileNum = Integer.parseInt(stockPileInstance[0])-1;
+                System.out.println(pileNum);
                 stockPiles.get(pileNum).setStockPileName(stockPileInstance[0]);
                 stockPiles.get(pileNum).setTotalTonnes(Double.parseDouble(stockPileInstance[1]));
                 stockPiles.get(pileNum).setGrades(new double[]{
