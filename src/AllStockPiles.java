@@ -47,4 +47,13 @@ public class AllStockPiles {
             }
         }
     }
+
+    public void resetUndergroundPiles(int day) {
+        int[] underGroundIndex = new int[]{1,13,14,15,16,17,18};
+        UndergroundStockPile undergroundStockPile = new UndergroundStockPile("data/underground_stockpile_"+day+"May.csv");
+        for (int i = 0; i < underGroundIndex.length; i++) {
+            stockPiles.remove(underGroundIndex[i]-1);
+            stockPiles.add(underGroundIndex[i]-1, undergroundStockPile.getStockPile(i));
+        }
+    }
 }

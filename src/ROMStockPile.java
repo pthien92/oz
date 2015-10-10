@@ -22,10 +22,12 @@ public class ROMStockPile {
         String csvSplit = ",";
         try {
             br = new BufferedReader(new FileReader(dataFile));
+            line = br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] stockPileInstance = line.split(csvSplit);
                 int pileNum = Integer.parseInt(stockPileInstance[0])-1;
                 System.out.println(pileNum);
+                stockPiles.get(pileNum).setTravelTime(Integer.parseInt(stockPileInstance[11]));
                 stockPiles.get(pileNum).setStockPileName(stockPileInstance[0]);
                 stockPiles.get(pileNum).setTotalTonnes(Double.parseDouble(stockPileInstance[1]));
                 stockPiles.get(pileNum).setGrades(new double[]{

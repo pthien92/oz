@@ -57,6 +57,8 @@ public class Driver {
     }
 
     public static void main(String args[]) {
+        int directTip = 0;
+
         Driver dr = new Driver();
         AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
         ArrayList<StockPile> piles = stockPiles.getStockPiles();
@@ -65,14 +67,17 @@ public class Driver {
         double timeElapsed = 0;
         Crusher cr = new Crusher();
 
-        int origin = (int)jobQueue.get(0).getEndTime();
+        int origin = (int)jobQueue.get(jobQueue.size() - 1).getEndTime();
         int tick = origin;
 
-        while (jobQueue.size() > 4) {
-            Job crrJob = jobQueue.get(0);
+        int freeTimeCount = 0;
 
+        while (!jobQueue.isEmpty()) {
+            boolean newFleetAdded = false;
+            Job crrJob = jobQueue.get(jobQueue.size() - 1);
             if ((int) (crrJob.getEndTime()) == tick) {
                 double crushErr = testError(cr, crrJob.getTruck());
+
                 ArrayList<Double> stockpileErrs = new ArrayList<Double>();
                 for (int i = 0; i < piles.size(); ++i) {
                     stockpileErrs.add(stockpilesError(piles.get(i), crrJob.getTruck()));
@@ -88,56 +93,81 @@ public class Driver {
                 }
 
                 if (minPile != -1) {
+                    jobQueue.remove(crrJob);
                     if (crrJob.getTruck() instanceof TruckInPit) {
-                        piles.get(minPile).serveInTruck((TruckInPit) crrJob.getTruck(), tick - origin);
-                        jobQueue.remove(crrJob);
+                        piles.get(minPile).serveInTruck((TruckInPit) crrJob.getTruck(), crrJob.getTruck().getEndTime() - origin);
                     } else {
-                        piles.get(minPile).serveExTruck((TruckExPit) crrJob.getTruck(), tick - origin);
-                        jobQueue.remove(crrJob);
+                        piles.get(minPile).serveExTruck((TruckExPit) crrJob.getTruck(), crrJob.getTruck().getEndTime() - origin);
                     }
                 } else {
-                    cr.serveTruck((TruckInPit)crrJob.getTruck());
-                    jobQueue.remove(crrJob);
-                    if (crrJob.getTruck() instanceof TruckExPit) {
+                    if(crrJob.getTruck() instanceof  TruckInPit) {
+                        directTip ++;
+                        cr.serveTruck((TruckInPit) crrJob.getTruck());
+                        cr.setTimeElapsed(tick - origin);
+                    } else {
                         jobQueue.setFleetCount(jobQueue.getFleetCount() - 1);
                     }
+                    jobQueue.remove(crrJob);
                 }
+
+                System.out.println("tick" + tick + jobqueue.size);
             } else if (jobQueue.getFleetCount() < 3) {
-                TruckExPit fleet = new TruckExPit();
-                fleet.setStartTime(tick);
-
-                // Select pile here
-                int pileId = 0;
-                double minError = 100000;
-                ArrayList<Double> errors = new ArrayList<Double>();
-                for (int i = 0; i < piles.size(); ++i) {
-                    errors.add(pileToCrusherError(cr, piles.get(i).getGrades()));
-                }
-
-                for (int i = 0; i < piles.size(); ++i) {
-                    if (minError > errors.get(i) && piles.get(i).getTotalTones() >= 138) {
-                       minError = errors.get(i);
-                        pileId = i;
-                    }
-                }
-
-                piles.get(pileId).serveExTruck(fleet, tick);
-                fleet.setEndTime(tick + 2 * piles.get(pileId).getTravelTime());
-
-                Job job = new Job(tick, fleet.getEndTime(), null, fleet);
-
-                jobQueue.add(job);
-                jobQueue.setFleetCount(jobQueue.getFleetCount() + 1);
+                freeTimeCount++;
+//                System.out.println("free time count" + freeTimeCount);
+//
+//                TruckExPit fleet = new TruckExPit();
+//                fleet.setStartTime(tick);
+//
+//                // Select pile here
+//                int pileId = 0;
+//                double minError = 100000;
+//                ArrayList<Double> errors = new ArrayList<Double>();
+//                for (int i = 0; i < piles.size(); ++i) {
+//                    errors.add(pileToCrusherError(cr, piles.get(i).getGrades()));
+//                }
+//
+//                for (int i = 0; i < piles.size(); ++i) {
+//                    if (minError > errors.get(i) && piles.get(i).getTotalTones() >= 138) {
+//                       minError = errors.get(i);
+//                        pileId = i;
+//                    }
+//                }
+//
+//                piles.get(pileId).serveExTruck(fleet, tick);
+//                fleet.setEndTime(tick + piles.get(pileId).getTravelTime());
+//
+//                Job job = new Job(tick, fleet.getEndTime(), null, fleet);
+//
+//                jobQueue.add(job);
+//                jobQueue.sort();
+//                if (jobQueue.get(jobQueue.size() - 1).getEndTime() == job.getEndTime()) {
+//                    System.out.println("adfajsk");
+//                }
+//
+//                jobQueue.setFleetCount(jobQueue.getFleetCount() + 1);
+//
+//                System.out.println(2 * piles.get(pileId).getTravelTime() + "travel time");
+//                newFleetAdded = true;
             }
 
-            ++tick;
-
-            System.out.println(jobQueue.size());
+//            if (!newFleetAdded) {
+//                if (!jobQueue.isEmpty() && jobQueue.get(jobQueue.size() - 1).getEndTime() != tick) {
+//                    ++tick;
+//                }
+//            } else {
+                if (!jobQueue.isEmpty() && jobQueue.get(jobQueue.size() - 1).getEndTime() != tick) {
+                    ++tick;
+                }
+//            }
         }
 
+        if ((tick - origin) % (60*60*24) == 0) {
+            stockPiles.resetUndergroundPiles((tick - origin) / (60 * 60 * 24));
+        }
 
         // Report after 7 days
         cr.report();
+        System.out.println(directTip);
     }
 
     public ArrayList<TruckInPit> getTruckExPits() {
