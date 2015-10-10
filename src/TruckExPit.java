@@ -38,4 +38,8 @@ public class TruckExPit {
         assignedDump = dumpLocation;
     }
 
+    public double[] getGrades() {
+        return grades;
+    }
+
 }

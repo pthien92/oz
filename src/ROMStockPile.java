@@ -32,6 +32,7 @@ public class ROMStockPile {
                         Double.parseDouble(stockPileInstance[9]), //H
                         Double.parseDouble(stockPileInstance[10]) //I
                 });
+                stockPiles.get(pileNum).computeError(goal);
             }
         } catch (Exception e) {
             e.printStackTrace();
