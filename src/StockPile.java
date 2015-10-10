@@ -41,6 +41,10 @@ public class StockPile {
     }
     public double computeError(double[] targetGrades) {
         // estimate the error of pile
-        return error;
+        double error = 0;
+        for (int i = 0; i < targetGrades.length; i++) {
+           error += Math.pow(grades[i] - targetGrades[i], 2);
+        }
+        return Math.sqrt(error);
     }
 }
