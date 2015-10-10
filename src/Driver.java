@@ -1,12 +1,7 @@
 import java.io.BufferedReader;
-
-
-
-import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * Created by pthien92 on 10/10/15.
@@ -53,74 +48,131 @@ public class Driver {
                 truckInPits.add(temp);
 
                 Job truckInPitsJob = new Job(temp.getLoadTime() + 324 /*In-pit truck arrived at depot B*/
-                                            , temp.getLoadTime() + 324, Job.EventType.TRUCK_IN_PIT_ARRIVE);
+                                            , temp.getLoadTime() + 324, Job.EventType.TRUCK_IN_PIT_ARRIVE, temp);
                 jobQueue.add(truckInPitsJob);
             }
         } catch (Exception e) {
            e.printStackTrace();
         }
-
     }
 
     public static void main(String args[]) {
         Driver dr = new Driver();
         AllStockPiles stockPiles = new AllStockPiles("data/underground_stockpile_1May.csv");
+        ArrayList<StockPile> piles = stockPiles.getStockPiles();
+
         jobQueue.sort(); //sort in ascending order of end time
         double timeElapsed = 0;
         Crusher cr = new Crusher();
 
-        int origin = (int)truckInPits.get(0).getLoadTime();
+        int origin = (int)jobQueue.get(0).getEndTime();
         int tick = origin;
-        int nextTruckId = 0;
-        LinkedList<TruckInPit> currentQueue = new LinkedList<TruckInPit>();
 
-        double something = truckInPits.get(truckInPits.size() - 1).getLoadTime() - truckInPits.get(0).getLoadTime();
-        System.out.println(something);
-        int directTip = 0;
+        while (jobQueue.size() > 4) {
+            Job crrJob = jobQueue.get(0);
 
-        while (nextTruckId < truckInPits.size()) {
-            if ((int)truckInPits.get(nextTruckId).getLoadTime() == tick) {
-                currentQueue.add(truckInPits.get(nextTruckId));
-                nextTruckId++;
-            }
-
-            TruckInPit topTruck = currentQueue.peek();
-            if (topTruck != null && tick == (int) topTruck.getLoadTime() + 54 * 6) {
-                currentQueue.poll();
-                // Make decision for this truck, direct tip by default
-                if (cr.dailyCheck(topTruck)) {
-                    directTip++;
-                    cr.serveTruck(topTruck);
+            if ((int) (crrJob.getEndTime()) == tick) {
+                double crushErr = testError(cr, crrJob.getTruck());
+                ArrayList<Double> stockpileErrs = new ArrayList<Double>();
+                for (int i = 0; i < piles.size(); ++i) {
+                    stockpileErrs.add(stockpilesError(piles.get(i), crrJob.getTruck()));
                 }
+
+                double minErr = crushErr;
+                int minPile = -1;
+                for (int i = 0; i < stockpileErrs.size(); ++i) {
+                    if (minErr > stockpileErrs.get(i) && piles.get(i).getTotalTones() >= 138) {
+                        minErr = stockpileErrs.get(i);
+                        minPile = i;
+                    }
+                }
+
+                if (minPile != -1) {
+                    if (crrJob.getTruck() instanceof TruckInPit) {
+                        piles.get(minPile).serveInTruck((TruckInPit) crrJob.getTruck(), tick - origin);
+                        jobQueue.remove(crrJob);
+                    } else {
+                        piles.get(minPile).serveExTruck((TruckExPit) crrJob.getTruck(), tick - origin);
+                        jobQueue.remove(crrJob);
+                    }
+                } else {
+                    cr.serveTruck((TruckInPit)crrJob.getTruck());
+                    jobQueue.remove(crrJob);
+                    if (crrJob.getTruck() instanceof TruckExPit) {
+                        jobQueue.setFleetCount(jobQueue.getFleetCount() - 1);
+                    }
+                }
+            } else if (jobQueue.getFleetCount() < 3) {
+                TruckExPit fleet = new TruckExPit();
+                fleet.setStartTime(tick);
+
+                // Select pile here
+                int pileId = 0;
+                double minError = 100000;
+                ArrayList<Double> errors = new ArrayList<Double>();
+                for (int i = 0; i < piles.size(); ++i) {
+                    errors.add(pileToCrusherError(cr, piles.get(i).getGrades()));
+                }
+
+                for (int i = 0; i < piles.size(); ++i) {
+                    if (minError > errors.get(i) && piles.get(i).getTotalTones() >= 138) {
+                       minError = errors.get(i);
+                        pileId = i;
+                    }
+                }
+
+                piles.get(pileId).serveExTruck(fleet, tick);
+                fleet.setEndTime(tick + 2 * piles.get(pileId).getTravelTime());
+
+                Job job = new Job(tick, fleet.getEndTime(), null, fleet);
+
+                jobQueue.add(job);
+                jobQueue.setFleetCount(jobQueue.getFleetCount() + 1);
             }
 
             ++tick;
-            cr.setTimeElapsed(tick - origin);
+
+            System.out.println(jobQueue.size());
         }
 
-        System.out.println(nextTruckId);
 
         // Report after 7 days
         cr.report();
-
-        System.out.println(directTip);
     }
 
     public ArrayList<TruckInPit> getTruckExPits() {
         return truckInPits;
     }
 
-    public static double testError(double[] grades) {
-        if (crushCount == 0) {
-            crushCount++;
-            movingAvg = grades.clone();
-            return computeError(grades);
+    public static double testError(Crusher crusher, Truck truck) {
+        double[] movingAvg = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+        double[] newGrades = truck.getGrades();
+        ArrayList<Double> crusherGrades = crusher.getAverageGrade();
+        for (int i = 0; i < 9; ++i) {
+            movingAvg[i] = (crusherGrades.get(i) * crusher.getTotalTonnes() + newGrades[i] * truck.getWeight()) / (crusher.getTotalTonnes() + truck.getWeight());
         }
 
-        for (int i = 0; i < grades.length; i++) {
-            movingAvg[i] = movingAvg[i] + (grades[i] - movingAvg[i])/(crushCount+1);
+        return computeError(movingAvg);
+    }
+
+    public static double pileToCrusherError(Crusher crusher, double newGrades[]) {
+        double[] movingAvg = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+        ArrayList<Double> crusherGrades = crusher.getAverageGrade();
+        for (int i = 0; i < 9; ++i) {
+            movingAvg[i] = (crusherGrades.get(i) * crusher.getTotalTonnes() + newGrades[i] * 138) / (crusher.getTotalTonnes() + 138);
         }
-        crushCount++;
+
+        return computeError(movingAvg);
+    }
+
+    public static double stockpilesError(StockPile stockpile, Truck truck) {
+        double[] movingAvg = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+        double[] newGrades = truck.getGrades();
+        double[] stockpileGrades = stockpile.getGrades();
+        for (int i = 0; i < 9; ++i) {
+            movingAvg[i] = (stockpileGrades[i] * stockpile.getTotalTones() + newGrades[i] * truck.getWeight()) / (stockpile.getTotalTones() + truck.getWeight());
+        }
+
         return computeError(movingAvg);
     }
 
@@ -135,6 +187,7 @@ public class Driver {
         }
         return scale*Math.sqrt(error);
     }
+
     public static double[] normaliseGrades(double[] grades, double[] coeffs) {
         double[] normGrades = new double[]{0,0,0,0,0,0,0,0,0};
         for (int i = 0; i < grades.length; i++) {

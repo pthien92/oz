@@ -7,6 +7,7 @@ public class StockPile {
     private double[] grades;
     private int travelTime;
     private double error;
+    private double time;
     private double scale;
     StockPile() {
         totalTonnes = 0;
@@ -16,8 +17,12 @@ public class StockPile {
         travelTime = 0;
         error = 0;
         scale = 1;
+        time = 0;
     }
 
+    public String getStockPileName() {
+        return stockPileName;
+    }
 
     public void setTotalTonnes(double tonnes) {
         this.totalTonnes = tonnes;
@@ -51,5 +56,24 @@ public class StockPile {
     }
     public void setScale(double sc) {
         scale = sc;
+    }
+
+    public void serveInTruck(TruckInPit truck, int time) {
+        this.time = time;
+        totalTonnes += truck.getWeight();
+
+        double[] truckGrades = truck.getGrades();
+        for (int i  = 0; i < 9; ++i) {
+           grades[i] = (grades[i] * totalTonnes + truck.getWeight() * truckGrades[i]) / (totalTonnes + truck.getWeight());
+        }
+    }
+
+    public void serveExTruck(TruckExPit truck, int time) {
+        this.time = time;
+        totalTonnes -= truck.getWeight();
+        double[] truckGrades = truck.getGrades();
+        for (int i  = 0; i < 9; ++i) {
+            grades[i] = (grades[i] * totalTonnes - truck.getWeight() * truckGrades[i]) / (totalTonnes - truck.getWeight());
+        }
     }
 }

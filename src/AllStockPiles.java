@@ -4,6 +4,14 @@ import java.util.ArrayList;
  * Created by pthien92 on 10/10/15.
  */
 public class AllStockPiles {
+    public ArrayList<StockPile> getStockPiles() {
+        return stockPiles;
+    }
+
+    public void setStockPiles(ArrayList<StockPile> stockPiles) {
+        this.stockPiles = stockPiles;
+    }
+
     private ArrayList<StockPile> stockPiles;
     public AllStockPiles(String path_to_under_ground) {
         //copy stockpiles from ROM stockPile
@@ -20,6 +28,22 @@ public class AllStockPiles {
         for (int i = 0; i < underGroundIndex.length; i++) {
             stockPiles.remove(underGroundIndex[i]-1);
             stockPiles.add(underGroundIndex[i]-1, undergroundStockPile.getStockPile(i));
+        }
+    }
+
+    public void serveInTruck(String stockName, TruckInPit truck, int time) {
+        for (int i = 0; i < stockPiles.size(); ++i) {
+            if (stockPiles.get(i).getStockPileName() == stockName) {
+                stockPiles.get(i).serveInTruck(truck, time);
+            }
+        }
+    }
+
+    public void serveExTruck(String stockName, TruckExPit truck, int time) {
+        for (int i = 0; i < stockPiles.size(); ++i) {
+            if (stockPiles.get(i).getStockPileName() == stockName) {
+                stockPiles.get(i).serveExTruck(truck, time);
+            }
         }
     }
 }

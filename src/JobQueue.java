@@ -8,6 +8,17 @@ import java.util.LinkedList;
  */
 public class JobQueue extends ArrayList<Job> {
     private boolean crushing;
+
+    public int getFleetCount() {
+        return fleetCount;
+    }
+
+    public void setFleetCount(int fleetCount) {
+        this.fleetCount = fleetCount;
+    }
+
+    private int fleetCount;
+
     public JobQueue() {
         super();
     }
@@ -32,6 +43,4 @@ public class JobQueue extends ArrayList<Job> {
     public void setCrusherRunningFlag(boolean flag) {
         crushing = flag;
     }
-
-
 }
