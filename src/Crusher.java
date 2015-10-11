@@ -143,10 +143,11 @@ public class Crusher {
     }
 
     public void report() {
+        System.out.println("\nResult\n====================================\n");
         for(int i = 0; i < 9; ++i) {
-            System.out.println(i + ":" + averageGrade.get(i));
+            System.out.println((char)('A'+i) + " : " + averageGrade.get(i));
         }
 
-        System.out.println(totalTonnes / (timeElapsed / (24 * 60 * 60)));
+        System.out.println("Total tonnes per day = " + totalTonnes / (timeElapsed / (24 * 60 * 60)));
     }
-};
+}

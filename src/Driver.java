@@ -13,6 +13,7 @@ public class Driver {
     private static double[] goal = new double[]{0.33,0.1,0.75,4.86,0.24,0,0.07,43.01, 573.57};
     private static double scale;
     private static JobQueue jobQueue;
+    private static int tick;
 
     Driver() {
         movingAvg = new double[]{0,0,0,0,0,0,0,0,0};
@@ -69,7 +70,7 @@ public class Driver {
         Crusher cr = new Crusher();
 
         int origin = (int)jobQueue.get(jobQueue.size() - 1).getEndTime();
-        int tick = origin;
+        tick = origin;
 
         int freeTimeCount = 0;
         int myMin = tick;
@@ -126,14 +127,14 @@ public class Driver {
                     jobQueue.setFleetCount(jobQueue.getFleetCount() - 1);
                     jobQueue.remove(jobQueue.size() - 1);
                 }
-            } else if (jobQueue.getFleetCount() < 3) {
+            } else if (jobQueue.getFleetCount() < 1) {
 
                 TruckExPit fleet = new TruckExPit();
                 fleet.setStartTime(tick);
 
                 // Select pile here
                 int pileId = -1;
-                double minError = 100000;
+                double minError = testError(cr, crrJob.getTruck());
                 ArrayList<Double> errors = new ArrayList<Double>();
                 for (int i = 0; i < piles.size(); ++i) {
                     errors.add(pileToCrusherError(cr, piles.get(i).getGrades()));
@@ -167,12 +168,14 @@ public class Driver {
             if ((tick - origin) % (60*60*24) == 0) {
                 int day = ((tick - origin) / (60 * 60 * 24) % 7 + 1);
                 stockPiles.resetUndergroundPiles(day);
+                System.out.println("Day " + day);
+                cr.report();
             }
         }
 
         // Report after 7 days
         cr.report();
-        System.out.println(directTip);
+        System.out.println("Direct Tip = " + directTip + " (" + 100 * ((double)directTip / 1627.0 * 100.0) / 100 + ")");
     }
 
     public ArrayList<TruckInPit> getTruckExPits() {
@@ -212,16 +215,66 @@ public class Driver {
     }
 
     public static double computeError(double[] new_grades) {
-        double error = 0;
-//        double[] coefficients = calculateNormaliseCoefficients(goal);
-//        double[] normalisedNewGrades = normaliseGrades(new_grades, coefficients);
-//        double[] normalisedGoal = normaliseGrades(goal, coefficients);
+        double[] error = new double[]{0,0,0,0,0,0,0,0,0};
+        double[] coefficients = calculateNormaliseCoefficients(goal);
+        double[] normalisedNewGrades = normaliseGrades(new_grades, coefficients);
+        double[] normalisedGoal = normaliseGrades(goal, coefficients);
         for (int i = 0; i < new_grades.length; i++) {
-            if (i != 5 ) //ignore F
-//                error += Math.pow(normalisedNewGrades[i] - normalisedGoal[i], 2);
-            error += Math.pow(goal[i] - new_grades[i], 2);
+
+                error[i] = Math.pow(normalisedNewGrades[i] - normalisedGoal[i], 2);
+           // error[i] = Math.pow(goal[i] - new_grades[i], 2);
         }
-        return scale*Math.sqrt(error);
+        double sum = 0;
+        for (int i = 0; i < error.length; i++) {
+            sum += error[i];
+        }
+        double[] error_percentage = new double[]{0,0,0,0,0,0,0,0,0};
+        for (int i = 0; i < error.length; i++) {
+            error_percentage[i] = error[i]/sum;
+        }
+        double[] dailyIntakeQuotaInSeconds = new double[]{0,0,0,0,0,0,0,0,0};
+        for (int i = 0; i < error.length; i++) {
+            dailyIntakeQuotaInSeconds[i] = 86400 * error_percentage[i];
+        }
+        // Pritority of error calculation
+        // F -> I -> H -> D -> C -> A -> B -> E -> G -> E
+        double[] priorityGradesTimeWindow = new double[] {
+                dailyIntakeQuotaInSeconds[5], // F don't care
+                dailyIntakeQuotaInSeconds[8], // I
+                dailyIntakeQuotaInSeconds[7], // H
+                dailyIntakeQuotaInSeconds[3], // D
+                dailyIntakeQuotaInSeconds[2], // C
+                dailyIntakeQuotaInSeconds[4], // E
+                dailyIntakeQuotaInSeconds[6], // B
+                dailyIntakeQuotaInSeconds[1], // G
+                dailyIntakeQuotaInSeconds[0], // A
+
+        };
+        double[] accummulatedGradesWindow = new double[]{0,0,0,0,0,0,0,0,0,0};
+        for (int i = 1; i < error.length; i++) {
+            accummulatedGradesWindow[i] = accummulatedGradesWindow[i-1] + priorityGradesTimeWindow[i];
+        }
+        int currentPeriodOfDay = tick % 86400;
+        int isProcessingGrade = 0;
+        for (int i = 1; i < accummulatedGradesWindow.length; i++) {
+            if (currentPeriodOfDay < accummulatedGradesWindow[i]) {
+                isProcessingGrade = i - 1;
+                break;
+            }
+            isProcessingGrade = i;
+        }
+        switch (isProcessingGrade) {
+            case 0: return scale * Math.sqrt(error[5]);
+            case 1: return scale * Math.sqrt(error[8]);
+            case 2: return scale * Math.sqrt(error[7]);
+            case 3: return scale * Math.sqrt(error[3]);
+            case 4: return scale * Math.sqrt(error[2]);
+            case 5: return scale * Math.sqrt(error[4]);
+            case 6: return scale * Math.sqrt(error[6]);
+            case 7: return scale * Math.sqrt(error[1]);
+            case 8: return scale * Math.sqrt(error[0]);
+            default: return scale * Math.sqrt(error[0]);
+        }
     }
 
     public static double[] normaliseGrades(double[] grades, double[] coeffs) {
